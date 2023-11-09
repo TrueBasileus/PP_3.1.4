@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <style>
+        .with-border {
+            border: 1px black solid;
+            margin: 4px;
+            padding: 3px;
+        }
+    </style>
+</head>
+<body>
+<a href="/logout" style="float: right"> Logout</a>
+
+<h1>All Users</h1>
+
+
+   <table style="border-collapse: collapse">
+     <thead>
+         <tr>
+             <th class="with-border"> Id </th>
+             <th class="with-border"> Name </th>
+             <th class="with-border"> Surname </th>
+             <th class="with-border"> Age</th>
+             <th class="with-border"> Password</th>
+             <th class="with-border"> Roles</th>
+
+
+             <th></th>
+             <th></th>
+         </tr>
+     </thead>
+     <tbody>
+         <tr th:each="user : ${users}">
+           <td class="with-border" th:text="${user.getId()}">Name</td>
+             <td class="with-border" th:text="${user.getName()}">Name</td>
+             <td class="with-border" th:text="${user.getSurname()}">Name</td>
+             <td class="with-border" th:text="${user.getAge()}">Name</td>
+             <td class="with-border" th:text="${user.getPassword()}">Name</td>
+             <td class="with-border" th:text="${user.getRoles()}">Roles</td>
+             <td >
+                 <form th:method="GET" th:object="${user}" th:action="@{/admin/update}">
+                     <input th:type="hidden" th:name="id"  th:value="*{id}" >
+                     <input style="margin: 6px" type="submit" value="update" >
+                 </form>
+             </td>
+             <td>
+                 <form th:method="POST" th:action="@{/admin/delete}" th:object="${user}" >
+                     <input th:type="hidden" th:name="id"  th:value="*{id}" >
+                     <input type="submit" value="delete" >
+                 </form>
+             </td>
+         </tr>
+     </tbody>
+   </table>
+   <br/>
+<form method="get" action="/admin/new">
+    <input type="submit" value="New user">
+</form>
+<br/>
+<a href="/admin/user" > Your page</a>
+
+</body>
+</html>
