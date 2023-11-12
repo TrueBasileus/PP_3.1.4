@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUser(User user) {
-        if (!passwordEncoder.matches(user.getPassword(), userRepository.findByEmail(user.getEmail()).getPassword())) {
+        if (!passwordEncoder.matches(passwordEncoder.encode(user.getPassword()), userRepository.findByEmail(user.getEmail()).getPassword())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         userRepository.save(user);
