@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
@@ -31,52 +30,40 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-
-    @GetMapping("/user")
-    public String userPage(Principal principal, Model model) {
-        model.addAttribute("user", userService.findByName(principal.getName()));
-        return "user";
-    }
-
     @GetMapping
-    public String showUsers(Model model) {
+    public String showUsers(Principal principal, Model model) {
         model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("cuser", userService.findByEmail(principal.getName()));
+        model.addAttribute("rols", roleService.findAll());
+        model.addAttribute("nuser", new User());
         return "users";
-    }
-
-    @GetMapping("/update")
-    public String wantToUpdateUser(@RequestParam("id") int id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        return "update";
     }
 
     @PostMapping("/update")
     public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "update";
+            return "redirect:/admin";
         }
         userService.updateUser(user);
         return "redirect:/admin";
     }
 
     @PostMapping("/delete")
-    public String deleteUser(@ModelAttribute("user") User user) {
-        userService.removeUser(user);
-        return "redirect:/admin";
-    }
-
-    @GetMapping("/new")
-    public String wantToCreateUser(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("rols", roleService.findAll());
-        return "new";
+    public String deleteUser(@ModelAttribute("user") User user, Principal principal) {
+        if (principal.getName().equals(user.getEmail())) {
+            userService.removeUser(user);
+            return "redirect:/logout";
+        } else {
+            userService.removeUser(user);
+            return "redirect:/admin";
+        }
     }
 
     @PostMapping("/new")
-    public String createUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, Model model) {
+    public String createUser(@ModelAttribute("nuser") @Valid User user, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("rols", roleService.findAll());
-            return "new";
+            return "redirect:/admin";
         }
         userService.addUser(user);
         return "redirect:/admin";

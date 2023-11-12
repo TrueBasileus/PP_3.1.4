@@ -3,46 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${user.getName()}">User</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
     <style>
         .with-border {
-            border: 1px black solid;
             margin: 4px;
             padding: 3px;
         }
     </style>
 </head>
 <body>
-<a href="/logout" style="float: right"> Logout</a>
 
-<h1>You are</h1>
-<table style="border-collapse: collapse">
-    <thead>
-    <tr>
-        <th class="with-border"> Id </th>
-        <th class="with-border"> Name </th>
-        <th class="with-border"> Surname </th>
-        <th class="with-border"> Age</th>
-        <th class="with-border"> Password</th>
-        <th class="with-border"> Roles</th>
+<div class="container-fluid">
+    <div class="row bg-dark text-white">
+        <div class="col-11 " th:utext="'<b>' + ${user.getEmail()} + '</b> with roles ' + ${user.getRoles().toString().substring(1,user.getRoles().toString().length()-1)}">text</div>
+        <div class="col-1 text-muted">
+            <a href="/logout" style="float: right; color: darkgrey"> Logout</a>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+<div style="padding-top: 8px" class="col-2  justify-content-left">
+    <nav>
+        <div class="nav nav-pills flex-column" aria-orientation="vertical">
+            <a class="nav-link nav-item active" href="#user-panel" aria-controls="user-panel"  data-toggle="pill" aria-selected="true">User </a>
+        </div>
+    </nav>
+</div>
+        <div class="tab-content">
+            <h2>User information page</h2><br/>
+                <div class="tab-pane fade border show active" id="user-panel">
+<div class="container-fluid border">
+    <div class="row">
+        <div class="col-10 ">
+            <h4 style="padding: 5px">About user</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="with-border"> Id </th>
+                    <th class="with-border"> Name </th>
+                    <th class="with-border"> Surname </th>
+                    <th class="with-border"> Email</th>
+                    <th class="with-border"> Age</th>
+                    <th class="with-border"> Roles</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="with-border" th:text="${user.getId()}">Name</td>
+                    <td class="with-border" th:text="${user.getName()}">Name</td>
+                    <td class="with-border" th:text="${user.getSurname()}">Name</td>
+                    <td class="with-border" th:text="${user.getEmail()}">Name</td>
+                    <td class="with-border" th:text="${user.getAge()}">Name</td>
+                    <td class="with-border" th:text="${user.getRoles().toString().substring(1,user.getRoles().toString().length()-1)}">Roles</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
 
-
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td class="with-border" th:text="${user.getId()}">Name</td>
-        <td class="with-border" th:text="${user.getName()}">Name</td>
-        <td class="with-border" th:text="${user.getSurname()}">Name</td>
-        <td class="with-border" th:text="${user.getAge()}">Name</td>
-        <td class="with-border" th:text="${user.getPassword()}">Name</td>
-        <td class="with-border" th:text="${user.getRoles()}">Roles</td>
-    </tr>
-    </tbody>
-</table>
-
-<br/>
-<br/>
-<a href="/admin" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"> Get back</a>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 </body>
 </html>

@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -26,11 +27,15 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Pattern(regexp = "[A-Za-zА-Яа-я]{2,30}", message = "Только буквы в кол-ве от 2 до 30")
+
+    @Pattern(regexp = "[A-Za-zА-Яа-яё]{2,30}", message = "Только буквы в кол-ве от 2 до 30")
     private String name;
 
-    @Pattern(regexp = "[A-Za-zА-Яа-я]{2,40}", message = "Только буквы в кол-ве от 2 до 40")
+    @Pattern(regexp = "[A-Za-zА-Яа-яё]{2,40}", message = "Только буквы в кол-ве от 2 до 40")
     private String surname;
+
+    @Email(message = "Некорректный email")
+    private String email;
 
     @Size(min = 3, message = "Минимум 4 символа")
     private String password = "$2y$10$RActNQEN6Lwglg5Wzd89me1UpHJfhJX7K6NMzdf87OevoVwrxb/2S";
@@ -50,12 +55,21 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String surname, String password, List<Role> roles, int age) {
+    public User(String name, String surname, String email, String password, List<Role> roles, int age) {
         this.name = name;
         this.surname = surname;
+        this.email = email;
         this.password = password;
         this.roles = roles;
         this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setPassword(String password) {
