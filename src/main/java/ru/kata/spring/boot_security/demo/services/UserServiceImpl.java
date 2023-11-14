@@ -2,9 +2,7 @@ package ru.kata.spring.boot_security.demo.services;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +18,12 @@ public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
 
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -42,24 +41,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    @Override
-    public User findByName(String name) {
-        return userRepository.findByName(name);
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new EntityNotFoundException();
+        }
+        return user;
     }
 
     @Override
     @Transactional
     public void removeUser(User user) {
-        userRepository.deleteById(user.getId());
+        userRepository.deleteById(userRepository.findById(user.getId()).orElseThrow(EntityNotFoundException::new).getId());
     }
 
     @Override
     @Transactional
     public void updateUser(User user) {
-        if (!passwordEncoder.matches(passwordEncoder.encode(user.getPassword()), userRepository.findByEmail(user.getEmail()).getPassword())) {
+        if (!passwordEncoder.matches(passwordEncoder.encode(user.getPassword()), userRepository.findById(user.getId()).orElseThrow(EntityNotFoundException::new).getPassword())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         userRepository.save(user);
@@ -72,14 +70,4 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found", email));
-        }
-
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getRoles());
-    }
 }
