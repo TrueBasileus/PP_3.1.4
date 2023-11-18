@@ -1,9 +1,11 @@
 package ru.kata.spring.boot_security.demo.entities;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,7 +43,7 @@ public class User implements UserDetails {
     private String password = "$2y$10$RActNQEN6Lwglg5Wzd89me1UpHJfhJX7K6NMzdf87OevoVwrxb/2S";
 
     @NotEmpty(message = "Выбери роль")
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),

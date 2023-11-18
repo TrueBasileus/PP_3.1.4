@@ -2,23 +2,31 @@ package ru.kata.spring.boot_security.demo.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
+import ru.kata.spring.boot_security.demo.exception.MyException;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import javax.validation.Valid;
 import java.security.Principal;
 
+import java.util.List;
 
-@Controller
-@RequestMapping(value = "/admin")
+
+@RestController
+@RequestMapping(value = "/api/admin")
 public class AdminController {
 
     private UserService userService;
@@ -30,42 +38,48 @@ public class AdminController {
         this.roleService = roleService;
     }
 
+    @GetMapping("/getRoles")
+    public ResponseEntity<List<Role>> getRoles() {
+        ResponseEntity<List<Role>> res = new ResponseEntity<>(roleService.findAll(), HttpStatus.OK);
+        return res;
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUser(@PathVariable int id) {
+        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+    }
+
     @GetMapping
-    public String showUsers(Principal principal, Model model) {
+    public ResponseEntity<List<User>> showUsers(Principal principal, Model model) {
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("cuser", userService.findByEmail(principal.getName()));
         model.addAttribute("rols", roleService.findAll());
         model.addAttribute("nuser", new User());
-        return "users";
+
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult) {
+    public ResponseEntity<MyException> updateUser(@RequestBody @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "redirect:/admin";
+            return new ResponseEntity<>(new MyException(bindingResult.getFieldErrors().toString()), HttpStatus.BAD_REQUEST);
         }
         userService.updateUser(user);
-        return "redirect:/admin";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/delete")
-    public String deleteUser(@ModelAttribute("user") User user, Principal principal) {
-        if (principal.getName().equals(user.getEmail())) {
-            userService.removeUser(user);
-            return "redirect:/logout";
-        } else {
-            userService.removeUser(user);
-            return "redirect:/admin";
-        }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable int id) {
+        userService.removeUser(userService.getUserById(id));
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PostMapping("/new")
-    public String createUser(@ModelAttribute("nuser") @Valid User user, BindingResult bindingResult, Model model) {
+    public ResponseEntity<HttpStatus> newUser(@RequestBody @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("rols", roleService.findAll());
-            return "redirect:/admin";
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         userService.addUser(user);
-        return "redirect:/admin";
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }
