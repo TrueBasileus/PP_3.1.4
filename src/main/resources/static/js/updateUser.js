@@ -10,8 +10,8 @@ async function updateModal(id) {
     await fillModal(updateForm, modalUpdate, id)
 }
 
-function updateUser() {
-    updateForm.addEventListener("submit", ev => {
+async function updateUser() {
+    updateForm.addEventListener("submit", async function(ev){
         let rolesForJava =[]
 
         for (let i = 0; i < updateForm.roles.options.length; i++) {
@@ -24,7 +24,7 @@ function updateUser() {
         }
 
         ev.preventDefault()
-        fetch('http://localhost:8080/api/admin/update/', {
+        let response = await fetch('http://localhost:8080/api/admin/update/', {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -38,10 +38,15 @@ function updateUser() {
                 password: document.getElementById("password1").value,
                 roles: rolesForJava
             })
-        }).then(() => {
+        })
+
+        if (response.ok) {
             document.getElementById('update-close').click()
             showUsers()
-        })
+        } else {
+            let err = await response.json()
+            alert(err['message'])
+        } 
     })
 }
 
@@ -65,18 +70,5 @@ function loadRolesForUpdate(userRoles) {
                 }
                 selectDelete.innerHTML = dataSelect
             })
-            // data.forEach(role => {
-            //     let option = document.createElement("option");
-            //     option.value = role.id;
-            //     option.text = role.name.toString().replace('ROLE_', '');
-            //     for(let userRole of userRoles) {
-            //         if (userRole.name === role.name) {
-            //             option.selected =true
-            //             break
-            //         }
-            //     }
-            //
-            //     selectDelete.add(option);
-            // }
         .catch(error => console.error(error));
 }

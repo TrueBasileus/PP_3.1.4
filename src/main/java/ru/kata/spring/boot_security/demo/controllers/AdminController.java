@@ -2,10 +2,12 @@ package ru.kata.spring.boot_security.demo.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +25,7 @@ import javax.validation.Valid;
 import java.security.Principal;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -62,7 +65,7 @@ public class AdminController {
     @PostMapping("/update")
     public ResponseEntity<MyException> updateUser(@RequestBody @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(new MyException(bindingResult.getFieldErrors().toString()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MyException(mapErrorMessage(bindingResult)), HttpStatus.BAD_REQUEST);
         }
         userService.updateUser(user);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -75,11 +78,15 @@ public class AdminController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<HttpStatus> newUser(@RequestBody @Valid User user, BindingResult bindingResult) {
+    public ResponseEntity<MyException> newUser(@RequestBody @Valid User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MyException(mapErrorMessage(bindingResult)), HttpStatus.BAD_REQUEST);
         }
         userService.addUser(user);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private String mapErrorMessage(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors().stream().map(err -> err.getField() + ": " + err.getDefaultMessage()).collect(Collectors.joining(";\n"));
     }
 }

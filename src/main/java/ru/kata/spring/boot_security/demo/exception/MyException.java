@@ -1,18 +1,9 @@
 package ru.kata.spring.boot_security.demo.exception;
 
 
-public class MyException {
-
-    private String info;
-
-    public MyException() {
-    }
-
+public class MyException extends RuntimeException{
     public MyException(String info) {
-        this.info = info;
+        super(info);
     }
 
-    public String getInfo() {
-        return info;
-    }
 }

@@ -19,11 +19,11 @@ function fillRoles() {
         })
 }
 
-function newUser() {
-    form.addEventListener('submit', ev => {
+async function newUser() {
+    await form.addEventListener('submit', async function(ev) {
         ev.preventDefault()
 
-        let rolesForJava =[]
+        let rolesForJava = []
 
         for (let i = 0; i < form.roles.options.length; i++) {
             if (form.roles.options[i].selected) {
@@ -34,7 +34,7 @@ function newUser() {
             }
         }
 
-        fetch('http://localhost:8080/api/admin/new', {
+        let response = await fetch('http://localhost:8080/api/admin/new', {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -47,11 +47,16 @@ function newUser() {
                 password: document.getElementById("password").value,
                 roles: rolesForJava
             })
-        }).then(()=> {
-            form.reset()
-            showUsers()
-            document.getElementById('users-tab').click()
         })
 
+        form.reset()
+        if (response.ok) {
+            showUsers()
+            document.getElementById('users-tab').click()
+        } else {
+            let err = await response.json()
+            alert(err['message'])
+
+        }
     })
 }
