@@ -46,7 +46,7 @@ async function updateUser() {
         } else {
             let err = await response.json()
             alert(err['message'])
-        } 
+        }
     })
 }
 

@@ -67,8 +67,12 @@ public class AdminController {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(new MyException(mapErrorMessage(bindingResult)), HttpStatus.BAD_REQUEST);
         }
-        userService.updateUser(user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            userService.updateUser(user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (MyException exception) {
+            return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/delete/{id}")
@@ -82,8 +86,12 @@ public class AdminController {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(new MyException(mapErrorMessage(bindingResult)), HttpStatus.BAD_REQUEST);
         }
-        userService.addUser(user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            userService.addUser(user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (MyException exception) {
+            return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
+        }
     }
 
     private String mapErrorMessage(BindingResult bindingResult) {
